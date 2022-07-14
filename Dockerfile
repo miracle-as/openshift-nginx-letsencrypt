@@ -1,5 +1,5 @@
-FROM fedora:24
-MAINTAINER Seth Jennings <sethdjennings@gmail.com>
+FROM ubi9/ubi
+MAINTAINER Team OSI@Miracle A/S <osi@miracle.dk>
 
 RUN dnf install certbot -y && dnf clean all
 RUN mkdir /etc/letsencrypt
