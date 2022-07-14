@@ -1,4 +1,4 @@
-FROM ubi9/ubi
+FROM registry.access.redhat.com/ubi9/ubi
 MAINTAINER Team OSI@Miracle A/S <osi@miracle.dk>
 
 RUN dnf install certbot -y && dnf clean all
