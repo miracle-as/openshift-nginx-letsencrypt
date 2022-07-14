@@ -1,11 +1,9 @@
 FROM registry.redhat.io/ubi8/ubi
 MAINTAINER Team OSI@Miracle A/S <osi@miracle.dk>
 
-RUN wget https://dl.eff.org/certbot-auto && chmod +x certbot-auto
+RUN dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && dnf config-manager --set-enabled PowerTools
+RUN dnf install certbot python3-certbot-nginx
 
-RUN ./certbot-auto --nginx
-
-#RUN dnf install certbot -y && dnf clean all
 #RUN mkdir /etc/letsencrypt
 
 CMD ["/entrypoint.sh"]
