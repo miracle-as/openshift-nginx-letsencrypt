@@ -13,7 +13,7 @@ mkdir -p $WEBHOME
 cd $WEBHOME
 python3 -m http.server 8080 &
 PID=$!
-certbot certonly --webroot -w $WEBHOME -n --agree-tos --email ${EMAIL} --no-self-upgrade -d ${DOMAINS} --config-dir /opt/letsencrypt/config/ --work-dir /opt/letsencrypt/work/ --logs-dir /opt/letsencrypt/logs/
+certbot certonly --webroot -w $WEBHOME -n --agree-tos --email ${EMAIL} --no-self-upgrade -d ${DOMAINS} --config-dir /opt/letsencrypt/config/ --work-dir /opt/letsencrypt/work/ --logs-dir /opt/letsencrypt/logs/ $OPTS
 kill $PID
 
 CERTPATH=/opt/letsencrypt/config/letsencrypt/live/$(echo $DOMAINS | cut -f1 -d',')
