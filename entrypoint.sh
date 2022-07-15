@@ -8,10 +8,12 @@ fi
 
 NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
-cd $HOME
-python -m SimpleHTTPServer 80 &
+WEBHOME=/opt/letsencrypt/web
+mkdir -p $WEBHOME
+cd $WEBHOME
+python3 -m http.server 8080 &
 PID=$!
-certbot certonly --webroot -w $HOME -n --agree-tos --email ${EMAIL} --no-self-upgrade -d ${DOMAINS} --config-dir /opt/letsencrypt/config/ --work-dir /opt/letsencrypt/work/ --logs-dir /opt/letsencrypt/logs/
+certbot certonly --webroot -w $WEBHOME -n --agree-tos --email ${EMAIL} --no-self-upgrade -d ${DOMAINS} --config-dir /opt/letsencrypt/config/ --work-dir /opt/letsencrypt/work/ --logs-dir /opt/letsencrypt/logs/
 kill $PID
 
 CERTPATH=/opt/letsencrypt/config/letsencrypt/live/$(echo $DOMAINS | cut -f1 -d',')
