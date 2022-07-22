@@ -156,6 +156,8 @@
                       - name: DEPLOYMENT
                         value: "{{ prefix }}-proxy"
                       - name: OPTS
+                      - name: NAMESPACE
+                        value: "{{ project[deployenvironment] }}"
                     resources: {}
                     terminationMessagePath: /dev/termination-log
                     terminationMessagePolicy: File
