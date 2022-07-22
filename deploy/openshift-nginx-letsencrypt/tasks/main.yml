@@ -141,7 +141,7 @@
                 containers:
                   - name: "{{ prefix }}-letsencrypt"
                     image: >-
-                      "image-registry.openshift-image-registry.svc:5000/{{ project[deployenvironment] }}/{{ prefix }}-letsencrypt:latest"
+                      image-registry.openshift-image-registry.svc:5000/{{ project[deployenvironment] }}/{{ prefix }}-letsencrypt:latest
                     ports:
                       - name: letsencrypt
                         containerPort: 8080
