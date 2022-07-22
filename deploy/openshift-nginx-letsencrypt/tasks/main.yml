@@ -1,0 +1,169 @@
+---
+# tasks file for client-cert-server
+
+- name: Check Environment
+  set_fact:
+    env_check: "{{ project[deployenvironment] is defined }}"
+
+- name: Check Environment
+  debug:
+    msg: "Environment {{ deployenvironment }} is not defined"
+  failed_when: env_check == 0
+  when: env_check == 0
+
+- name: Deploying Client Cert Server
+  debug: 
+    msg: "Deploying to {{ deployenvironment }}"
+
+- name: Create/Update Imagestream
+  k8s:
+    state: present
+    host: "{{ openshift_apiurl }}"
+    validate_certs: no
+    definition:
+      kind: ImageStream
+      apiVersion: image.openshift.io/v1
+      metadata:
+        annotations:
+          app.openshift.io/vcs-ref: main
+          app.openshift.io/vcs-uri: 'git@github.com:miracle-as/openshift-nginx-letsencrypt.git'
+        name: "{{ prefix }}-letsencrypt"
+        generation: 1
+        namespace: "{{ project[deployenvironment] }}"
+        labels:
+          app: "{{ prefix }}-letsencrypt"
+          app.kubernetes.io/component: "{{ prefix }}-letsencrypt"
+          app.kubernetes.io/instance: "{{ prefix }}-letsencrypt"
+          app.kubernetes.io/name: "{{ prefix }}-letsencrypt"
+          app.kubernetes.io/part-of: infrastructure
+      spec:
+        lookupPolicy:
+          local: false
+
+- name: Create/Update BuildConfig
+  k8s:
+    state: present
+    host: "{{ openshift_apiurl }}"
+    validate_certs: no
+    definition:
+      kind: BuildConfig
+      apiVersion: build.openshift.io/v1
+      metadata:
+        annotations:
+          app.openshift.io/vcs-ref: master
+          app.openshift.io/vcs-uri: 'git@github.com:miracle-as/openshift-nginx-letsencrypt.git'
+        name: "{{ prefix }}-letsencrypt"
+        generation: 1
+        namespace: "{{ project[deployenvironment] }}"
+        labels:
+          app: "{{ prefix }}-letsencrypt"
+          app.kubernetes.io/component: "{{ prefix }}-letsencrypt"
+          app.kubernetes.io/instance: "{{ prefix }}-letsencrypt"
+          app.kubernetes.io/name: "{{ prefix }}-letsencrypt"
+          app.kubernetes.io/part-of: infrastructure
+      spec:
+        nodeSelector: null
+        output:
+          to:
+            kind: ImageStreamTag
+            name: 'openshift-nginx-letsencrypt:latest'
+        resources: {}
+        successfulBuildsHistoryLimit: 2
+        failedBuildsHistoryLimit: 2
+        strategy:
+          type: Docker
+          dockerStrategy:
+            dockerfilePath: Dockerfile
+        postCommit: {}
+        source:
+          type: Git
+          git:
+            uri: 'git@github.com:miracle-as/openshift-nginx-letsencrypt.git'
+            ref: master
+          contextDir: /
+          sourceSecret:
+            name: osi-serviceaccount
+        triggers:
+          - type: ConfigChange
+        runPolicy: Serial
+
+
+- name: Create/Update Service
+  k8s:
+    state: present
+    host: "{{ openshift_apiurl }}"
+    validate_certs: no
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ prefix }}-letsencrypt"
+        namespace: "{{ project[deployenvironment] }}"
+      spec:
+        selector:
+          app: "{{ prefix }}-letsencrypt"
+        ports:
+        - protocol: "TCP"
+          port: 8080
+
+- name: Create/Update Cronjob
+  k8s:
+    state: present
+    host: "{{ openshift_apiurl }}"
+    validate_certs: no
+    definition:
+      kind: CronJob
+      apiVersion: batch/v1beta1
+      metadata:
+        name: "{{ prefix }}-letsencrypt"
+        namespace: "{{ project[deployenvironment] }}"
+        generation: 1
+        labels:
+          app: "{{ prefix }}-letsencrypt"
+      spec:
+        schedule: 1 1 * * *
+        concurrencyPolicy: Forbid
+        suspend: false
+        jobTemplate:
+          metadata:
+            name: "{{ prefix }}-letsencrypt"
+            creationTimestamp: null
+            labels:
+              app: "{{ prefix }}-letsencrypt"
+          spec:
+            backoffLimit: 1
+            template:
+              metadata:
+                creationTimestamp: null
+                labels:
+                  app: "{{ prefix }}-letsencrypt"
+              spec:
+                containers:
+                  - name: "{{ prefix }}-letsencrypt"
+                    image: >-
+                      image-registry.openshift-image-registry.svc:5000/mint-shr-test/openshift-nginx-letsencrypt:latest
+                    ports:
+                      - name: letsencrypt
+                        containerPort: 8080
+                        protocol: TCP
+                    env:
+                      - name: DOMAINS
+                        value: "{{ domain[deployenvironment] }}"
+                      - name: EMAIL
+                        value: osi@miracle.dk
+                      - name: SECRET
+                        value: "{{ prefix }}-letsencrypt-certs"
+                      - name: DEPLOYMENT
+                        value: "{{ prefix }}-proxy"
+                      - name: OPTS
+                    resources: {}
+                    terminationMessagePath: /dev/termination-log
+                    terminationMessagePolicy: File
+                    imagePullPolicy: Always
+                restartPolicy: Never
+                terminationGracePeriodSeconds: 30
+                dnsPolicy: ClusterFirst
+                securityContext: {}
+                schedulerName: default-scheduler
+        successfulJobsHistoryLimit: 3
+        failedJobsHistoryLimit: 1

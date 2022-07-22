@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cert-whitelist
+data:
+  whitelist.txt: |
+    SERIALNUMBER=CVR:25678990-FID:22376884 + CN = Aarhus Test (funktionscertifikat)
+    CN=MosiVerify_MIRACLE (funktionscertifikat)+serialNumber=CVR:25678990-FID:14885405,O=MIRACLE A/S // CVR:25678990,C=DK
+    SERIALNUMBER=CVR:14814833-FID:46539522 + CN=CIP_OES (UAT) (funktionscertifikat), O=Netcompany A/S // CVR:14814833, C=DK
+    SERIALNUMBER=CVR:14814833-FID:13984539 + CN=CIP_SAM (UAT) (funktionscertifikat), O=Netcompany A/S // CVR:14814833, C=DK
+    SERIALNUMBER=CVR:14814833-FID:98295266 + CN=CIP_SIT (UAT) (funktionscertifikat), O=Netcompany A/S // CVR:14814833, C=DK
+    SERIALNUMBER=CVR:25678990-FID:75613725 + CN=MintVerify_MIRACLE (funktionscertifikat), O=MIRACLE A/S // CVR:25678990, C=DK
+    SERIALNUMBER=CVR:43271911-FID:92151537 + CN=SHRUM_UMUAT (funktionscertifikat), O=Udenrigsministeriet // CVR:43271911, C=DK
