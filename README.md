@@ -25,3 +25,18 @@ uat
 prod
 
 Vaultkey er i Bitwarden.
+
+Hører sammen med:
+
+Python server program, som godkender/afviser certifikater
+
+https://github.com/miracle-as/mint-klientcertifikat
+
+Nginx proxy som sender trafikken mellem certifikat-serveren, Letsencrypt og applikationen
+
+https://github.com/miracle-as/mint-klientcertifikat-server
+
+Automatisk Letsencrypt fornyelse i Openshift
+
+https://github.com/miracle-as/openshift-nginx-letsencrypt
+
