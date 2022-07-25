@@ -41,4 +41,4 @@ cat /deployment-patch-template.json | \
 ls /opt/letsencrypt/deployment-patch.json || exit 1
 
 # update pod spec on ingress deployment to trigger redeploy
-curl -v --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" -k -v -XPATCH  -H "Accept: application/json, */*" -H "Content-Type: application/strategic-merge-patch+json" -d @/opt/letsencrypt/deployment-patch.json https://api-int:6443/apis/extensions/v1beta1/namespaces/${NAMESPACE}/deployments/${DEPLOYMENT}
+curl -v --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" -k -v -XPATCH  -H "Accept: application/json, */*" -H "Content-Type: application/strategic-merge-patch+json" -d @/opt/letsencrypt/deployment-patch.json https://api-int:6443/apis/apps.openshift.io/v1/namespaces/${NAMESPACE}/deploymentconfigs/${DEPLOYMENT}
