@@ -15,6 +15,14 @@
   debug: 
     msg: "Deploying to {{ deployenvironment }}"
 
+- name: Add create ServiceAccount and add permissions
+  command: "{{ item }}"
+  ignore_errors: yes
+  with_items:
+    - "oc login --token {{ lookup('ansible.builtin.env', 'K8S_AUTH_API_KEY')}} {{ openshift_apiurl }}"
+    - "oc create sa letsencrypt-renew -n {{ project[deployenvironment] }}"
+    - "oc adm policy add-scc-to-user edit -z letsencrypt-renew -n {{ project[deployenvironment] }}"
+
 - name: Create/Update Imagestream
   k8s:
     state: present
@@ -164,6 +172,8 @@
                     imagePullPolicy: Always
                 restartPolicy: Never
                 terminationGracePeriodSeconds: 30
+                serviceAccountName: letsencrypt-renew
+                serviceAccount: letsencrypt-renew
                 dnsPolicy: ClusterFirst
                 securityContext: {}
                 schedulerName: default-scheduler
