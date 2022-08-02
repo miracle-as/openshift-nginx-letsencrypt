@@ -12,7 +12,7 @@
   when: env_check == 0
 
 - name: Deploying Client Cert Server
-  debug: 
+  debug:
     msg: "Deploying to {{ deployenvironment }}"
 
 - name: Add create ServiceAccount and add permissions
@@ -139,7 +139,7 @@
             labels:
               app: "{{ prefix }}-letsencrypt"
           spec:
-            backoffLimit: 0 
+            backoffLimit: 0
             template:
               metadata:
                 creationTimestamp: null
@@ -166,6 +166,10 @@
                       - name: OPTS
                       - name: NAMESPACE
                         value: "{{ project[deployenvironment] }}"
+                    volumeMounts:
+                      - name: client-cert-proxy-certs
+                        readOnly: true
+                        mountPath: /opt/app-root/src/ssl
                     resources: {}
                     terminationMessagePath: /dev/termination-log
                     terminationMessagePolicy: File
@@ -177,5 +181,10 @@
                 dnsPolicy: ClusterFirst
                 securityContext: {}
                 schedulerName: default-scheduler
+                volumes:
+                - name: client-cert-proxy-certs
+                  secret:
+                    secretName: client-cert-letsencrypt-certs
+                    defaultMode: 420
         successfulJobsHistoryLimit: 3
         failedJobsHistoryLimit: 1
