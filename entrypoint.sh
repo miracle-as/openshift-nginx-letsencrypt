@@ -6,6 +6,18 @@ if [[ -z $EMAIL || -z $DOMAINS || -z $SECRET || -z $DEPLOYMENT ]]; then
 	exit 1
 fi
 
+# Do certificate needs renewing?
+DAYSBEFORE=30 # Letsencrypt recommend automatically renewing your certificates every 60 days
+expire=$(date -d "$(cat /opt/app-root/src/ssl/..data/server.crt | openssl x509 -noout -enddate | cut -d'=' -f2)" +%s)
+now=$(date -d "now" +%s)
+datediff=$(($expire-$now))
+renewsec=$((DAYSBEFORE*86400))
+if [ "$datediff" -gt "$renewsec" ]; then
+  echo "Certificate doesn't require renewing. Expires in " $(( $datediff / 86400 )) " days"
+  exit 0
+fi
+
+
 NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
 WEBHOME=/opt/letsencrypt/web
