@@ -8,7 +8,7 @@ fi
 
 # Do certificate needs renewing?
 DAYSBEFORE=30 # Letsencrypt recommend automatically renewing your certificates every 60 days
-expire=$(date -d "$(cat /opt/app-root/src/ssl/..data/server.crt | openssl x509 -noout -enddate | cut -d'=' -f2)" +%s)
+expire=$(date -d "$(cat /opt/app-root/src/ssl/..data/server.crt | openssl3 x509 -noout -enddate | cut -d'=' -f2)" +%s)
 now=$(date -d "now" +%s)
 datediff=$(($expire-$now))
 renewsec=$((DAYSBEFORE*86400))
