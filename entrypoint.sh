@@ -12,7 +12,12 @@ expire=$(date -d "$(cat /opt/app-root/src/ssl/..data/server.crt | openssl3 x509 
 now=$(date -d "now" +%s)
 datediff=$(($expire-$now))
 renewsec=$((DAYSBEFORE*86400))
-if [ "$datediff" -gt "$renewsec" ]; then
+
+certdomain="$(cat /opt/app-root/src/ssl/..data/server.crt | openssl3 x509 -noout -subject | cut -d'=' -f3 | xargs)"
+
+if [ "$certdomain" != "$DOMAINS" ]; then
+  echo "Certificate domain not the same as renew domain. Forcing new certificate for $DOMAINS"
+elif [ "$datediff" -gt "$renewsec" ]; then
   echo "Certificate doesn't require renewing. Expires in " $(( $datediff / 86400 )) " days"
   exit 0
 fi
